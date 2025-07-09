@@ -1,7 +1,7 @@
+import datetime
 import pandas as pd
 from docx import Document
 
-dir = "files/"
 output_dir = "output/"
 input_file = "volontari.xlsx"
 template_file = "scheda.docx"
@@ -22,11 +22,11 @@ etichettaVolontario = "Nominativo op. vol.:"
 replace_fields = {
     "Data di avvio:": "data avvio",
     "Data di conclusione:": "data fine",
-    "Titolo del progetto:": "progetto",
+    "Titolo del progetto:": "PROGETTO",
     "Sede di attuazione:": nomeColonnaSede,
     "OLP - Operatorǝ Locale di Progetto:": "OLP",
-    "Telefono olp:": "TELEFONO OLP",
-    "e.mail olp:": "EMAIL OLP",
+    "Telefono OLP:": "TELEFONO OLP",
+    "E.mail OLP:": "EMAIL OLP",
     "Docentɜ di formazione specifica del progetto:": "FORMATOR3",
 }
 
@@ -50,20 +50,22 @@ def replace(new_document, word, replacement):
 
 # Crea il file "sede_nome_cognome.docx" riempiendo gli spazi indicati
 def create_file(row):
-    nome = row.iloc[1]
-    cognome = row.iloc[2]
+    nome = row.iloc[0]
+    cognome = row.iloc[1]
     sede = str(row.loc[nomeColonnaSede]).replace("/", "-")
     filename = sede + "_" + nome + "_" + cognome + ".docx"
 
-    new_document = Document(dir + template_file)
+    new_document = Document(template_file)
     replace(
         new_document,
         etichettaVolontario,
         etichettaVolontario + " " + nome + " " + cognome,
     )
     for word in replace_fields:
-
-        value = str(row.loc[replace_fields[word]]).strip()
+        originalValue = row.loc[replace_fields[word]]
+        if isinstance(originalValue, datetime.datetime):
+            originalValue = originalValue.strftime("%d/%m/%Y")
+        value = str(originalValue).strip()
         if value == "" or value == "nan":
             check.append(nome + " " + cognome + " manca " + replace_fields[word])
         else:
@@ -73,9 +75,11 @@ def create_file(row):
 
 
 ## main
-df = pd.read_excel(input_file, 1)
-df.head(10).apply(create_file, axis=1)
-# df.apply(create_file, axis=1)
+df = pd.read_excel(input_file, 0)
+# decommenta questo e commenta quello dopo per testare
+# df.head(10).apply(create_file, axis=1)
+df.apply(create_file, axis=1)
 
-print("Possibili ERRORI:")
-print("\n".join(check))
+if len(check):
+    print("Possibili ERRORI:")
+    print("\n".join(check))
