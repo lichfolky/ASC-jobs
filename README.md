@@ -12,21 +12,23 @@ Poi attivalo con uno di questi comandi:
 source venv/bin/activate
 venv\Scripts\activate
 ```
+oppure 
+```
+.\venv\Scripts\activate
+```
 
 Installaci dentro le librerie che servono:
 ```shell
-python3 -m pip install pandas, openpyxl, python-docx 
+pip install -r requirements.txt
 ```
 
-Carica i file dentro la cartella files,
-modifica i parametri dentro il job, 
-e poi lancia il job
+modifica i parametri dello script e poi lancialo con:
 ```shell
-python3 job2
+python3 job
 ```
 
 ## job2: scheda riepilogo
 
-Dato un file excel e un template (`input_file`, `template_file`) nella cartella `file`, genera una copia del `template_file` nella cartella `file`, per ogni riga di `input_file` riempiendo i valori definiti in `replace_fields` con quelli trovati nella riga di `input_file`.
+Dato un file excel e un template (`input_file`, `template_file`) nella cartella principale, genera una copia del `template_file` per ogni riga di `input_file`, rimpiazzando i valori definiti in `replace_fields`.
 
 Il nome file è di ogni copia è `sede_nome_cognome.docx`.
