@@ -11,6 +11,7 @@ template_file = "scheda.docx"
 
 # nome della colonna excel con la sede di attuazione
 nomeColonnaSede = "SEDE"
+nomeColonnaProgetto = "PROGETTO"
 
 # testo da inserire nel doc. prima del nome e cognome del volontario
 # es: "Nominativo op. vol.: Luigi Nerone"
@@ -22,7 +23,7 @@ etichettaVolontario = "Nominativo op. vol.:"
 replace_fields = {
     "Data di avvio:": "data avvio",
     "Data di conclusione:": "data fine",
-    "Titolo del progetto:": "PROGETTO",
+    "Titolo del progetto:": nomeColonnaProgetto,
     "Sede di attuazione:": nomeColonnaSede,
     "OLP - Operatorǝ Locale di Progetto:": "OLP",
     "Telefono OLP:": "TELEFONO OLP",
@@ -52,8 +53,21 @@ def replace(new_document, word, replacement):
 def create_file(row):
     nome = row.iloc[0]
     cognome = row.iloc[1]
-    sede = str(row.loc[nomeColonnaSede]).replace("/", "-")
-    filename = sede + "_" + nome + "_" + cognome + ".docx"
+    sede = (
+        str(row.loc[nomeColonnaSede])
+        .replace("/", "-")
+        .replace(",", "-")
+        .replace("\n", "")
+        .replace(":", "-")
+    )
+    progetto = (
+        str(row.loc[nomeColonnaProgetto])
+        .replace("/", "-")
+        .replace(",", "-")
+        .replace("\n", "")
+        .replace(":", "-")
+    )
+    filename = progetto + "_" + nome + "_" + cognome + ".docx"
 
     new_document = Document(template_file)
     replace(
