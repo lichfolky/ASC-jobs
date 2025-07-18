@@ -33,20 +33,30 @@ def clean(txt):
 
 def faiFile(df):
     fileName = df["Sede"].iat[0] + ".docx"
-    df["testo"] = (
-        df["titolo programma "]
-        + "\n"
-        + df["titolo progetto"]
-        + " - "
-        + df["x"].astype(int).astype(str)
-        + " posti ordinari"
+    df["testo"] = df["titolo programma "] + "\n" + df["titolo progetto"] + " - "
+
+    df["testo"] = df.apply(
+        lambda row: (
+            row["testo"]
+            if pd.isna(row["x"])
+            else (
+                row["testo"] + str(int(row["x"])) + " posto ordinario"
+                if row["x"] == 1
+                else row["testo"] + str(int(row["x"])) + " posti ordinari"
+            )
+        ),
+        axis=1,
     )
 
     df["testo"] = df.apply(
         lambda row: (
-            row["testo"] + " e " + str(int(row["y"])) + " posti GMO"
-            if row["y"] > 0
-            else row["testo"]
+            row["testo"]
+            if pd.isna(row["y"])
+            else (
+                row["testo"] + " e " + str(int(row["y"])) + " posto GMO"
+                if int(row["x"]) == 1
+                else row["testo"] + " e " + str(int(row["y"])) + " posti GMO"
+            )
         ),
         axis=1,
     )
@@ -57,7 +67,6 @@ def faiFile(df):
 
 # una testo word con un testo replacement
 def replace(new_document, word, replacement):
-    # print("replace", word, replacement)
     for p in new_document.paragraphs:
         if p.text.find(word) >= 0:
             p.text = p.text.replace(word, replacement)
@@ -75,10 +84,6 @@ def create_file(filename, text):
     replace(new_document, "$$$", text)
     new_document.save(output_dir + filename)
 
-
-## main
-
-#     filename = filename + ".docx"
 
 df = pd.read_excel(input_file, 0)
 # df.iloc[:, 0] = df.iloc[:, 0].str.strip()
